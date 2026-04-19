@@ -1,4 +1,4 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, route, layout } from "@react-router/dev/routes";
 
 export default [
   // Landing page
@@ -10,4 +10,10 @@ export default [
 
   // Better Auth API (catch-all)
   route("api/auth/*", "routes/api.auth.$.ts"),
+
+  // Dashboard (protected layout)
+  layout("routes/dashboard/layout.tsx", [
+    route("dashboard", "routes/dashboard/index.tsx"),
+    route("dashboard/agents", "routes/dashboard/agents.tsx"),
+  ]),
 ] satisfies RouteConfig;

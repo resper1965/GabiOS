@@ -23,7 +23,7 @@
 		{
 			"binding": "DB",
 			"database_name": "gabios-db",
-			"database_id": "local",
+			"database_id": "557d4e3b-e8d5-44e0-bffa-d6cc900147df",
 			"migrations_dir": "db/migrations"
 		}
 	],
