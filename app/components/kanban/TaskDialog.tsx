@@ -1,8 +1,33 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
-export function TaskDialog({ task, onClose, onStatusChange }: { task: any, onClose: () => void, onStatusChange: (id: string, status: string) => void }) {
-  const [events, setEvents] = useState<any[]>([]);
+// ─── Types ────────────────────────────────────────────────
+interface Task {
+  id: string;
+  title: string;
+  status: string;
+  costInTokens: number;
+  cost_in_tokens?: number;
+}
+
+interface TaskEvent {
+  id: string;
+  taskId: string;
+  actorId: string;
+  actorType: string;
+  eventType: string;
+  details: string;
+  createdAt: string;
+}
+
+interface TaskDialogProps {
+  task: Task;
+  onClose: () => void;
+  onStatusChange: (id: string, status: string) => void;
+}
+
+export function TaskDialog({ task, onClose, onStatusChange }: TaskDialogProps) {
+  const [events, setEvents] = useState<TaskEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +64,7 @@ export function TaskDialog({ task, onClose, onStatusChange }: { task: any, onClo
 
           <div className="mb-6">
             <span className="text-xs text-slate-500 uppercase font-semibold">Custo Atual</span>
-            <p className="text-lg font-mono text-emerald-400">{task.costInTokens} tkns</p>
+            <p className="text-lg font-mono text-emerald-400">{task.costInTokens || task.cost_in_tokens || 0} tkns</p>
           </div>
 
           <div className="mt-auto space-y-2">
@@ -82,7 +107,7 @@ export function TaskDialog({ task, onClose, onStatusChange }: { task: any, onClo
                         if (ev.eventType === "approval_request") return <span className="text-orange-400">{parsed.reason}</span>;
                         if (ev.eventType === "status_change") return <span className="text-blue-400">Status changed from {parsed.previous} to {parsed.current}</span>;
                         return JSON.stringify(parsed, null, 2);
-                      } catch (e) {
+                      } catch {
                         return ev.details;
                       }
                     })()}

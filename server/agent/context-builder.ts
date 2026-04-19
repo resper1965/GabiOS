@@ -56,10 +56,15 @@ function assembleSystemPrompt(
 
   // SOUL.md (agent personality)
   if (config.soulMd.trim()) {
-    parts.push(`\n--- Personalidade ---\n${config.soulMd}`);
+    // B8: Wrap in XML delimiters to reduce prompt injection risk
+    const sanitized = config.soulMd
+      .replace(/<\/?personality>/gi, "") // Strip any existing tags
+      .replace(/ignore\s+(all\s+)?previous\s+instructions/gi, "[FILTERED]"); // Basic injection filter
+    parts.push(`\n--- Personalidade (Imutável) ---\n<personality>\n${sanitized}\n</personality>`);
   }
 
   // Active skills (sorted by priority)
+  // A4: Only include skills that are active (enabled check happens at query time)
   if (config.skills.length > 0) {
     const sortedSkills = [...config.skills].sort((a, b) => a.priority - b.priority);
     const skillsText = sortedSkills

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { drizzle } from "drizzle-orm/d1";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { agents, agentSkills } from "../../db/schema";
 import { runAgentLoop } from "../agent";
 import type { HonoEnv } from "../index";
@@ -41,7 +41,7 @@ chatRoutes.post("/", async (c) => {
     return c.json({ error: "Agent is not active" }, 400);
   }
 
-  // Fetch active skills
+  // Fetch active skills (A4: filter by enabled flag)
   const skills = await db
     .select({
       name: agentSkills.name,
@@ -49,7 +49,12 @@ chatRoutes.post("/", async (c) => {
       priority: agentSkills.priority,
     })
     .from(agentSkills)
-    .where(eq(agentSkills.agentId, agentId))
+    .where(
+      and(
+        eq(agentSkills.agentId, agentId),
+        eq(agentSkills.enabled, true)
+      )
+    )
     .all();
 
   const activeSkills = skills.filter((s) => s.priority >= 0);
@@ -72,15 +77,8 @@ chatRoutes.post("/", async (c) => {
       },
       message,
       c.env,
-      // Pass ExecutionContext for waitUntil
-      {
-        waitUntil: (promise: Promise<unknown>) => {
-          // In Hono context, we don't have direct access to ctx.waitUntil
-          // The promise runs but we can't guarantee it completes
-          promise.catch(console.error);
-        },
-        passThroughOnException: () => {},
-      } as ExecutionContext
+      // B6 FIX: Use real ExecutionContext from the Worker runtime
+      c.executionCtx
     );
 
     return c.json({ data: response });

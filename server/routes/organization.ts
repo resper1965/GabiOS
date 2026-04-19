@@ -7,7 +7,7 @@ import type { HonoEnv } from "../index";
 const organizationRoutes = new Hono<HonoEnv>();
 
 organizationRoutes.get("/", async (c) => {
-  const db = drizzle(c.env.DB);
+  const db = drizzle(c.var.tenantDb);
   
   const allDepartments = await db.select().from(departments);
   const allRoles = await db.select().from(agentRoles);

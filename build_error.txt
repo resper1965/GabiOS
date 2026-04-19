@@ -1,0 +1,104 @@
+
+> gabios@0.1.0 build
+> react-router build
+
+Using Vite Environment API (experimental)
+vite v7.3.2 building client environment for production...
+transforming...
+✓ 1645 modules transformed.
+Generated an empty chunk: "api.auth._".
+rendering chunks...
+computing gzip size...
+build/client/.assetsignore                        0.02 kB
+build/client/.vite/manifest.json                  5.11 kB │ gzip:  0.79 kB
+build/client/assets/root-BKWA9xRp.css            36.91 kB │ gzip:  6.74 kB
+build/client/assets/api.auth._-l0sNRNKZ.js        0.00 kB │ gzip:  0.02 kB
+build/client/assets/message-square-CjXaoFOK.js    0.17 kB │ gzip:  0.16 kB
+build/client/assets/zap-BehWKO2w.js               0.26 kB │ gzip:  0.20 kB
+build/client/assets/file-text-DiqWzVZm.js         0.33 kB │ gzip:  0.21 kB
+build/client/assets/card-CMSr_bIa.js              0.64 kB │ gzip:  0.38 kB
+build/client/assets/root-ColSzurZ.js              1.09 kB │ gzip:  0.62 kB
+build/client/assets/bot-Don8yZEi.js               1.17 kB │ gzip:  0.69 kB
+build/client/assets/button-l5vIGmpZ.js            1.48 kB │ gzip:  0.75 kB
+build/client/assets/input-CjWRI2xX.js             2.09 kB │ gzip:  0.69 kB
+build/client/assets/sign-in-Cknj2wQ-.js           2.69 kB │ gzip:  1.17 kB
+build/client/assets/sign-up-DssidpgQ.js           3.03 kB │ gzip:  1.24 kB
+build/client/assets/layout-BK7lDmyY.js            3.63 kB │ gzip:  1.45 kB
+build/client/assets/index-gk5xrdA1.js             3.70 kB │ gzip:  1.11 kB
+build/client/assets/agents-B3uEj6bo.js            4.08 kB │ gzip:  1.64 kB
+build/client/assets/webchat-CBDn864O.js           5.97 kB │ gzip:  2.34 kB
+build/client/assets/home-yJVn6CY3.js              7.96 kB │ gzip:  2.78 kB
+build/client/assets/auth.client-DJSJkFRr.js      23.91 kB │ gzip:  8.87 kB
+build/client/assets/chunk-OE4NN4TA-vcYOYDUS.js  126.12 kB │ gzip: 42.42 kB
+build/client/assets/entry.client-B1xmhDKN.js    190.57 kB │ gzip: 60.05 kB
+✓ built in 10.31s
+vite v7.3.2 building ssr environment for production...
+transforming...
+✓ 52 modules transformed.
+✗ Build failed in 501ms
+[commonjs--resolver] Missing "./expressions" specifier in "drizzle-orm" package
+    at e (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:6651:8)
+    at n (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:6663:14)
+    at o (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:6691:10)
+    at resolveExportsOrImports (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:32831:45)
+    at resolveDeepImport (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:32845:22)
+    at tryNodeResolve (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:32720:70)
+    at Object.handler (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:32559:16)
+    at Object.handler (file:///home/esper/antigravity/GabiOS/node_modules/vite/dist/node/chunks/config.js:33710:13)
+    at file:///home/esper/antigravity/GabiOS/node_modules/rollup/dist/es/shared/node-entry.js:22981:40
+    at PluginDriver.hookFirstAndGetPlugin (file:///home/esper/antigravity/GabiOS/node_modules/rollup/dist/es/shared/node-entry.js:22863:28) {
+  code: 'PLUGIN_ERROR',
+  plugin: 'commonjs--resolver',
+  hook: 'resolveId',
+  watchFiles: [
+    '/home/esper/antigravity/GabiOS/node_modules/@cloudflare/unenv-preset/dist/runtime/polyfill/performance.mjs',
+    '/home/esper/antigravity/GabiOS/workers/app.ts',
+    '/home/esper/antigravity/GabiOS/node_modules/@cloudflare/unenv-preset/dist/runtime/node/process.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/@cloudflare/unenv-preset/dist/runtime/node/console.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/perf_hooks.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/process/hrtime.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/process/process.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/console.mjs',
+    '/home/esper/antigravity/GabiOS/server/index.ts',
+    '/home/esper/antigravity/GabiOS/workers/task-dispatcher.ts',
+    '/home/esper/antigravity/GabiOS/workers/agent-worker.ts',
+    '/home/esper/antigravity/GabiOS/workers/durable-objects/meeting-room.ts',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/perf_hooks/histogram.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/perf_hooks/performance.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/perf_hooks/constants.mjs',
+    '/home/esper/antigravity/GabiOS/app/entry.server.tsx',
+    '/home/esper/antigravity/GabiOS/app/root.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/home.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/auth/sign-in.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/auth/sign-up.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/api.auth.$.ts',
+    '/home/esper/antigravity/GabiOS/app/routes/dashboard/layout.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/dashboard/index.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/dashboard/agents.tsx',
+    '/home/esper/antigravity/GabiOS/app/routes/webchat.tsx',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/_internal/utils.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/process/node-version.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/tty.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/mock/noop.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/react-router/dist/development/index.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/tty/read-stream.mjs',
+    '/home/esper/antigravity/GabiOS/node_modules/unenv/dist/runtime/node/internal/tty/write-stream.mjs',
+    '/home/esper/antigravity/GabiOS/db/schema.ts',
+    '/home/esper/antigravity/GabiOS/node_modules/hono/dist/index.js',
+    '/home/esper/antigravity/GabiOS/node_modules/hono/dist/middleware/cors/index.js',
+    '/home/esper/antigravity/GabiOS/node_modules/hono/dist/middleware/logger/index.js',
+    '/home/esper/antigravity/GabiOS/server/routes/health.ts',
+    '/home/esper/antigravity/GabiOS/server/routes/agents.ts',
+    '/home/esper/antigravity/GabiOS/server/routes/chat.ts',
+    '/home/esper/antigravity/GabiOS/server/middleware/auth.ts',
+    '/home/esper/antigravity/GabiOS/server/middleware/tenant.ts',
+    '/home/esper/antigravity/GabiOS/app/lib/auth.client.ts',
+    '/home/esper/antigravity/GabiOS/app/components/ui/button.tsx',
+    '/home/esper/antigravity/GabiOS/app/components/ui/card.tsx',
+    '/home/esper/antigravity/GabiOS/app/app.css',
+    '/home/esper/antigravity/GabiOS/node_modules/tailwindcss/index.css',
+    '/home/esper/antigravity/GabiOS/app/lib/auth.server.ts',
+    '/home/esper/antigravity/GabiOS/app/components/ui/input.tsx',
+    '/home/esper/antigravity/GabiOS/app/components/webchat/widget.tsx'
+  ]
+}

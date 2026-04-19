@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { drizzle } from "drizzle-orm/d1";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import { agents } from "../../db/schema";
 import type { HonoEnv } from "../index";
+import { requireRole } from "../middleware/rbac";
 
 export const agentRoutes = new Hono<HonoEnv>();
 
@@ -22,19 +23,19 @@ const updateAgentSchema = createAgentSchema.partial();
 
 // ─── Routes ───────────────────────────────────────────────
 
-// List agents
+// List agents (any authenticated user)
 agentRoutes.get("/", async (c) => {
   const db = drizzle(c.var.tenantDb);
   const result = await db
     .select()
     .from(agents)
-    .where(eq(agents.deletedAt, null as unknown as string))
+    .where(isNull(agents.deletedAt))
     .all();
 
   return c.json({ data: result });
 });
 
-// Get single agent
+// Get single agent (any authenticated user)
 agentRoutes.get("/:id", async (c) => {
   const db = drizzle(c.var.tenantDb);
   const id = c.req.param("id");
@@ -45,15 +46,15 @@ agentRoutes.get("/:id", async (c) => {
     .where(eq(agents.id, id))
     .get();
 
-  if (!result) {
+  if (!result || result.deletedAt) {
     return c.json({ error: "Agent not found" }, 404);
   }
 
   return c.json({ data: result });
 });
 
-// Create agent
-agentRoutes.post("/", async (c) => {
+// Create agent (admin/owner only)
+agentRoutes.post("/", requireRole("owner", "admin"), async (c) => {
   const body = await c.req.json();
   const parsed = createAgentSchema.safeParse(body);
 
@@ -73,8 +74,8 @@ agentRoutes.post("/", async (c) => {
   return c.json({ data: created }, 201);
 });
 
-// Update agent
-agentRoutes.put("/:id", async (c) => {
+// Update agent (admin/owner only)
+agentRoutes.put("/:id", requireRole("owner", "admin"), async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json();
   const parsed = updateAgentSchema.safeParse(body);
@@ -99,10 +100,15 @@ agentRoutes.put("/:id", async (c) => {
   return c.json({ data: updated });
 });
 
-// Delete agent (soft delete)
-agentRoutes.delete("/:id", async (c) => {
+// Delete agent — soft delete (owner only)
+agentRoutes.delete("/:id", requireRole("owner"), async (c) => {
   const id = c.req.param("id");
   const db = drizzle(c.var.tenantDb);
+
+  const existing = await db.select().from(agents).where(eq(agents.id, id)).get();
+  if (!existing || existing.deletedAt) {
+    return c.json({ error: "Agent not found" }, 404);
+  }
 
   await db
     .update(agents)

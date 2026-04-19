@@ -1,18 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { useFetcher, useLoaderData } from "react-router";
+import { useEffect, useState } from "react";
+import { useLoaderData } from "react-router";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 import { TaskDialog } from "../../components/kanban/TaskDialog";
 
-export async function loader({ context }: { context: any }) {
-  const url = new URL(context.cloudflare.env.APP_ENV === "development" ? "http://localhost:8787" : "https://gabios.com"); // Ajuste o host
+// ─── Types ────────────────────────────────────────────────
+interface Task {
+  id: string;
+  title: string;
+  status: string;
+  projectId: string;
+  assignedAgentId: string | null;
+  description: string | null;
+  costInTokens: number;
+  cost_in_tokens?: number; // D1 snake_case alias
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function loader({ context }: { context: { cloudflare: { env: Env } } }) {
   const res = await context.cloudflare.env.DB.prepare("SELECT * FROM tasks ORDER BY created_at DESC").all();
-  return { tasks: res.results || [] };
+  return { tasks: (res.results || []) as Task[] };
 }
 
 export default function KanbanBoard() {
   const { tasks: initialTasks } = useLoaderData<typeof loader>();
-  const [tasks, setTasks] = useState(initialTasks);
-  const [selectedTask, setSelectedTask] = useState<any | null>(null);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Sync loader data if it changes
   useEffect(() => {
@@ -28,7 +41,7 @@ export default function KanbanBoard() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     // Optimistic UI
-    setTasks((prev: any[]) => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
+    setTasks((prev) => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
     
     // API Call
     await fetch(`/api/tasks/${id}/status`, {
@@ -51,7 +64,7 @@ export default function KanbanBoard() {
 
       <div className="flex-1 flex gap-6 overflow-x-auto pb-4">
         {columns.map((col) => {
-          const colTasks = tasks.filter((t: any) => {
+          const colTasks = tasks.filter((t) => {
             if (col.id === "in_progress") return ["queued", "in_progress"].includes(t.status);
             return t.status === col.id;
           });
@@ -64,7 +77,7 @@ export default function KanbanBoard() {
               </div>
               
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
-                {colTasks.map((task: any) => (
+                {colTasks.map((task) => (
                   <Card 
                     key={task.id} 
                     className={`bg-slate-900 border-slate-700 hover:border-slate-500 cursor-pointer transition-colors ${

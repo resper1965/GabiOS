@@ -2,7 +2,6 @@ import { Outlet, Link, useLocation } from "react-router";
 import {
   Building2,
   KanbanSquare,
-  Settings,
   LogOut,
   ChevronRight,
   Landmark
@@ -12,7 +11,6 @@ import { signOut } from "~/lib/auth.client";
 const navItems = [
   { to: "/dashboard/tasks", icon: KanbanSquare, label: "Company Board" },
   { to: "/dashboard/organization", icon: Building2, label: "Organization" },
-  { to: "/dashboard/settings", icon: Settings, label: "Configurações" },
 ];
 
 export default function DashboardLayout() {

@@ -32,9 +32,17 @@ api.use("*", logger());
 api.use(
   "*",
   cors({
-    origin: "*", // Lock down in production
+    origin: (origin, c) => {
+      const env = c.env as Env;
+      const allowedOrigins =
+        env.APP_ENV === "production"
+          ? ["https://gabios.ness.workers.dev"]
+          : ["http://localhost:8787", "http://localhost:5173", "https://gabios.ness.workers.dev"];
+      return allowedOrigins.includes(origin) ? origin : "";
+    },
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 

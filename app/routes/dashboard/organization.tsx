@@ -3,23 +3,46 @@ import { Building2, Bot, Plus, Landmark } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 
-export async function loader({ context }: { context: any }) {
-  const url = new URL(context.cloudflare.env.APP_ENV === "development" ? "http://localhost:8787" : "https://gabios.com");
-  
-  // Como estamos testando o DB via worker binding diretamente no SSR do Hono/ReactRouter:
+// ─── Types ────────────────────────────────────────────────
+interface AgentRole {
+  id: string;
+  title: string;
+  departmentId: string;
+  reportsToRoleId: string | null;
+  instructions?: string;
+  model?: string;
+  modelId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  budgetLimit: number;
+  budget_limit?: number; // D1 snake_case alias
+  orgId: string;
+  roles?: AgentRole[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function loader({ context }: { context: { cloudflare: { env: Env } } }) {
   const db = context.cloudflare.env.DB;
   
   const depts = await db.prepare("SELECT * FROM departments").all();
   const roles = await db.prepare("SELECT * FROM agent_roles").all();
   
-  const orgStructure = (depts.results || []).map(dept => {
+  const orgStructure = (depts.results || []).map((dept: Record<string, unknown>) => {
     return {
       ...dept,
-      roles: (roles.results || []).filter(r => r.department_id === dept.id || r.departmentId === dept.id)
+      roles: (roles.results || []).filter((r: Record<string, unknown>) => 
+        r.department_id === dept.id || r.departmentId === dept.id
+      )
     };
   });
   
-  return { organization: orgStructure };
+  return { organization: orgStructure as Department[] };
 }
 
 export default function OrganizationPage() {
@@ -39,7 +62,7 @@ export default function OrganizationPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {organization.map((dept: any) => (
+        {organization.map((dept) => (
           <Card key={dept.id} className="bg-slate-900 border-slate-800">
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 p-4">
               <div className="flex items-center gap-3">
@@ -65,8 +88,8 @@ export default function OrganizationPage() {
               </div>
               
               <div className="space-y-3">
-                {dept.roles?.length > 0 ? (
-                  dept.roles.map((role: any) => (
+                {dept.roles && dept.roles.length > 0 ? (
+                  dept.roles.map((role) => (
                     <div key={role.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-800/30">
                       <div className="flex items-center gap-3">
                         <Bot className="w-4 h-4 text-slate-400" />
