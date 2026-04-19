@@ -1,86 +1,24 @@
-# GabiOS — Visão do Produto
+# GabiOS — Vision Document
 
-## Missão
+## The "Zero-Human Company" Operating System
 
-Democratizar o acesso a agentes AI inteligentes para empresas de todos os tamanhos, sem exigir infraestrutura local, conhecimento técnico ou investimento inicial alto.
+GabiOS is an Edge-native autonomous agent orchestrator. It provides the foundation for building and running "Zero-Human Companies"—digital organizations where AI agents operate as independent employees, managed under strict budgets, hierarchies, and rules.
 
-## O Problema
+### Core Philosophy
 
-Hoje, para ter um assistente AI que realmente faz coisas — responde clientes no WhatsApp, consulta documentos, executa workflows — você precisa:
+The fundamental premise of GabiOS is that autonomous AI should not be treated as a chatbot or a generic scripting tool. Instead, AI must be treated as a workforce. 
 
-1. Rodar software local (OpenClaw, n8n, etc.)
-2. Gerenciar servidores, APIs, credenciais
-3. Ter conhecimento técnico significativo
-4. Investir tempo em configuração e manutenção
+To effectively manage a digital workforce, GabiOS applies the rigor of traditional Enterprise Resource Planning (ERP) and project management systems (Kanban) to Artificial Intelligence:
+1. **Agents as Employees:** An agent in GabiOS has a role (e.g., "Financial Analyst"), belongs to a Department (e.g., "Finance"), and reports to managers.
+2. **Task-Driven Autonomy:** Agents do not wait for conversational prompts. They pull tasks from a backlog, plan their execution, and work asynchronously to achieve the goal.
+3. **Strict Governance:** Agents have granular budgets measured in tokens. They can operate independently, but critical actions or budget overruns require human-in-the-loop approval.
+4. **Transparent Thought Logs:** Instead of hiding reasoning in an ephemeral session, every step an agent takes—thoughts, API calls, tool results—is logged immutably into a task event ledger.
 
-A maioria das empresas — especialmente PMEs, escritórios profissionais e equipes pequenas — não tem esses recursos.
+### Target Audience
 
-## A Solução
+- **Solopreneurs & Micro-Agencies:** Individuals who want to scale their operations as if they had a 50-person team, without the payroll overhead.
+- **B2B SaaS Platforms:** Applications requiring a highly scalable, multi-tenant orchestration layer to embed autonomous agents into their enterprise offerings.
 
-GabiOS é a ponte entre o poder de um agente AI autônomo e a simplicidade de um SaaS.
+### Why Edge-Native?
 
-- **Zero infra**: Tudo roda no Cloudflare. Cadastrou, configurou, está rodando.
-- **Multi-canal**: O agente responde onde o cliente já está — WhatsApp, Teams, Web.
-- **Multi-agente**: Crie agentes especializados para diferentes funções.
-- **Memória inteligente**: O agente lembra contexto, aprende com documentos, extrai fatos.
-- **Workflows**: Automações sem código que conectam triggers a ações.
-
-## Princípios
-
-### 1. Simplicidade radical
-Se um advogado não consegue configurar sozinho em 10 minutos, falhamos. O onboarding deve ser guiado, visual e imediato.
-
-### 2. AI como utilidade, não como produto
-O valor não está no modelo AI — está na orquestração. O GabiOS é agnóstico ao modelo: OpenAI, Anthropic, Google, Workers AI. O cliente escolhe.
-
-### 3. Privacidade por design
-Cada tenant tem seu próprio banco de dados isolado. Dados nunca são compartilhados entre tenants. Cloudflare provê compliance (SOC 2, ISO 27001).
-
-### 4. Extensibilidade gradual
-V1: prompts e workflows declarativos (acessível a todos)
-V2: code plugins e marketplace (para power users e devs)
-
-### 5. Foco no resultado, não na tecnologia
-O usuário não precisa saber o que é RAG, embeddings ou LLM. Ele precisa que o agente responda certo, no canal certo, na hora certa.
-
-## Público-alvo
-
-### Primário
-- **PMEs brasileiras** — escritórios de advocacia, contabilidade, clínicas, imobiliárias
-- **Equipes de atendimento** — que usam WhatsApp como canal principal
-- **Freelancers e consultores** — que querem escalar com AI
-
-### Secundário
-- **Empresas de tecnologia** — que querem integrar agentes AI via API
-- **Agências** — que gerenciam múltiplos clientes e precisam de multi-tenancy
-
-## Roadmap de Alto Nível
-
-### V1.0 — MVP (4 semanas)
-Um agente, chat web, auth completo, onboarding guiado.
-
-### V1.1 — Multi-agente + WhatsApp
-Múltiplos agentes, Evolution API, RAG com documentos.
-
-### V1.2 — Teams + Workflows + Automações
-Microsoft Teams, workflows declarativos, cron jobs.
-
-### V2 — Plataforma
-Marketplace de skills, code plugins, builder visual, browser automation.
-
-## Métricas de Sucesso
-
-| Métrica | Meta V1 |
-|---|---|
-| Tenants ativos | 10-50 |
-| Tempo de onboarding | < 10 minutos |
-| Mensagens/dia/tenant | > 50 |
-| Churn mensal | < 5% |
-| NPS | > 40 |
-
-## Inspirações
-
-- [OpenClaw](https://openclaw.ai) — Agente AI pessoal local-first
-- [Linear](https://linear.app) — UX/UI de referência
-- [n8n](https://n8n.io) — Workflows de automação
-- [Intercom](https://intercom.com) — Chat integrado ao produto
+GabiOS is built natively on the Cloudflare ecosystem (Workers, Queues, D1, Durable Objects) for absolute performance and multi-tenant isolation. It avoids the heavy infrastructure overhead of traditional containerized Python agent frameworks. By operating at the edge, GabiOS guarantees microsecond cold starts and highly distributed background processing, making it the most cost-effective and scalable AI orchestration OS available.

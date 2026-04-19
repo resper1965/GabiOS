@@ -4,6 +4,8 @@ import { logger } from "hono/logger";
 import { healthRoutes } from "./routes/health";
 import { agentRoutes } from "./routes/agents";
 import { chatRoutes } from "./routes/chat";
+import { tasksRoutes } from "./routes/tasks";
+import { organizationRoutes } from "./routes/organization";
 import { authMiddleware } from "./middleware/auth";
 import { tenantMiddleware } from "./middleware/tenant";
 
@@ -44,5 +46,7 @@ api.use("/*", authMiddleware);
 api.use("/*", tenantMiddleware);
 api.route("/agents", agentRoutes);
 api.route("/chat", chatRoutes);
+api.route("/tasks", tasksRoutes);
+api.route("/organization", organizationRoutes);
 
 export { api };

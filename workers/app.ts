@@ -1,5 +1,8 @@
 import { createRequestHandler } from "react-router";
 import { api } from "../server/index";
+import { taskDispatcher } from "./task-dispatcher";
+import { agentWorker } from "./agent-worker";
+export { MeetingRoom } from "./durable-objects/meeting-room";
 
 declare module "react-router" {
   export interface AppLoadContext {
@@ -29,4 +32,10 @@ export default {
       cloudflare: { env, ctx },
     });
   },
+  async scheduled(event, env, ctx) {
+    await taskDispatcher(env, ctx);
+  },
+  async queue(batch, env, ctx) {
+    await agentWorker(batch, env, ctx);
+  }
 } satisfies ExportedHandler<Env>;

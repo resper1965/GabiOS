@@ -1,113 +1,75 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { drizzle } from "drizzle-orm/d1";
+import { tasks, taskEvents, approvalRequests } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { memoryFacts } from "../../db/schema";
-import type { AgentConfig } from "./types";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
 
-/**
- * Agent Tools — the actions an agent can perform.
- *
- * V1 tools:
- *   - search_knowledge: Semantic search in documents (placeholder until Vectorize)
- *   - get_facts: Query structured memory facts
- *   - save_fact: Store a new fact in memory
- *   - get_current_time: Returns the current date/time
- */
-export function getAgentTools(config: AgentConfig, env: Env) {
-  const db = drizzle(config.tenantDb);
-
+export function getAgentTools(db: DrizzleD1Database<any>, taskId: string) {
   return {
-    search_knowledge: tool({
-      description:
-        "Busca informações na base de conhecimento do agente. Use quando o usuário perguntar sobre documentos, contratos, políticas ou procedimentos.",
+    request_approval: tool({
+      description: "Pausa a tarefa e pede aprovação ou clarificação para um humano. Use quando houver ambiguidade severa ou quando uma ação crítica/destrutiva for necessária.",
       parameters: z.object({
-        query: z.string().describe("A pergunta ou termo de busca"),
+        reason: z.string().describe("O motivo detalhado pelo qual você precisa de aprovação humana."),
+        requiredRole: z.string().optional().describe("Se precisar de um cargo específico para aprovar (ex: admin, manager)."),
       }),
-      execute: async ({ query }) => {
-        // TODO: Replace with Vectorize semantic search in Sprint 4
-        return {
-          results: [],
-          message: `Busca por "${query}" — base de conhecimento ainda não configurada. Vectorize será integrado em breve.`,
-        };
+      execute: async ({ reason, requiredRole }) => {
+        // Halt the task
+        await db.update(tasks).set({ status: "awaiting_approval" }).where(eq(tasks.id, taskId));
+        
+        // Log the event
+        await db.insert(taskEvents).values({
+          id: crypto.randomUUID(),
+          taskId,
+          actorId: "agent",
+          actorType: "agent",
+          eventType: "approval_request",
+          details: JSON.stringify({ reason, requiredRole }),
+        });
+
+        // Insert into approval requests table
+        await db.insert(approvalRequests).values({
+          id: crypto.randomUUID(),
+          taskId,
+          requiredRoleId: requiredRole || null,
+          status: "pending",
+          reason,
+        });
+
+        return `Approval requested successfully. You must now stop execution.`;
+      },
+    }),
+    
+    mark_task_done: tool({
+      description: "Marca a tarefa atual como concluída. Chame esta ferramenta assim que tiver certeza absoluta de que todos os objetivos foram alcançados.",
+      parameters: z.object({
+        summary: z.string().describe("Um resumo do que foi feito para completar a tarefa."),
+      }),
+      execute: async ({ summary }) => {
+        await db.update(tasks).set({ status: "done" }).where(eq(tasks.id, taskId));
+        
+        await db.insert(taskEvents).values({
+          id: crypto.randomUUID(),
+          taskId,
+          actorId: "agent",
+          actorType: "agent",
+          eventType: "status_change",
+          details: JSON.stringify({ previous: "in_progress", current: "done", summary }),
+        });
+
+        return `Task marked as done. Summary: ${summary}`;
       },
     }),
 
-    get_facts: tool({
-      description:
-        "Consulta fatos estruturados salvos na memória do agente. Use para lembrar informações sobre o usuário, caso, preferências, etc.",
-      parameters: z.object({
-        category: z
-          .string()
-          .optional()
-          .describe("Categoria do fato: preference, case, deadline, contact"),
-      }),
-      execute: async ({ category }) => {
-        try {
-          let query = db
-            .select()
-            .from(memoryFacts)
-            .where(eq(memoryFacts.agentId, config.agentId));
-
-          const rows = await query.all();
-
-          const filtered = category
-            ? rows.filter((r) => r.category === category)
-            : rows;
-
-          return {
-            facts: filtered.map((r) => ({
-              category: r.category,
-              key: r.key,
-              value: r.value,
-            })),
-            count: filtered.length,
-          };
-        } catch {
-          return { facts: [], count: 0 };
-        }
-      },
-    }),
-
-    save_fact: tool({
-      description:
-        "Salva um fato importante na memória do agente. Use quando o usuário informar dados relevantes como email, telefone, número de processo, preferências, etc.",
-      parameters: z.object({
-        category: z.enum(["preference", "case", "deadline", "contact", "general"]).describe("Categoria do fato"),
-        key: z.string().describe("Chave descritiva do fato, ex: 'email', 'numero_processo'"),
-        value: z.string().describe("O valor do fato"),
-      }),
-      execute: async ({ category, key, value }) => {
-        try {
-          const id = crypto.randomUUID();
-          await db.insert(memoryFacts).values({
-            id,
-            agentId: config.agentId,
-            conversationId: config.conversationId,
-            category,
-            key,
-            value,
-          });
-          return { saved: true, id, category, key, value };
-        } catch (error) {
-          return {
-            saved: false,
-            error: error instanceof Error ? error.message : "Failed to save fact",
-          };
-        }
-      },
-    }),
-
-    get_current_time: tool({
-      description: "Retorna a data e hora atual. Use quando o usuário perguntar que dia é hoje, que horas são, etc.",
+    fetch_task_context: tool({
+      description: "Obtém os detalhes completos do projeto ao qual a tarefa pertence.",
       parameters: z.object({}),
       execute: async () => {
-        const now = new Date();
+        const task = await db.select().from(tasks).where(eq(tasks.id, taskId)).get();
+        if (!task) return { error: "Task not found" };
         return {
-          date: now.toISOString().split("T")[0],
-          time: now.toISOString().split("T")[1].split(".")[0],
-          iso: now.toISOString(),
-          dayOfWeek: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][now.getDay()],
+          title: task.title,
+          description: task.description || "Sem descrição adicional",
+          projectId: task.projectId,
         };
       },
     }),

@@ -14,7 +14,8 @@ export default [
   // Dashboard (protected layout)
   layout("routes/dashboard/layout.tsx", [
     route("dashboard", "routes/dashboard/index.tsx"),
-    route("dashboard/agents", "routes/dashboard/agents.tsx"),
+    route("dashboard/tasks", "routes/dashboard/tasks.tsx"),
+    route("dashboard/organization", "routes/dashboard/organization.tsx"),
   ]),
 
   // WebChat demo

@@ -19,6 +19,7 @@ const softDelete = {
 export const agents = sqliteTable("agents", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
+  roleId: text("role_id"), // fk to agentRoles
   soulMd: text("soul_md").notNull().default(""),
 
   // Model config
@@ -141,5 +142,66 @@ export const auditLogs = sqliteTable("audit_logs", {
   targetId: text("target_id").notNull(),
   details: text("details").default("{}"), // JSON — change details
   ipAddress: text("ip_address"),
+  ...timestamps,
+});
+
+// ─── Departments ──────────────────────────────────────────
+export const departments = sqliteTable("departments", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  budgetLimit: integer("budget_limit").notNull().default(0), // token budget
+  orgId: text("org_id").notNull(),
+  ...timestamps,
+});
+
+// ─── Agent Roles ──────────────────────────────────────────
+export const agentRoles = sqliteTable("agent_roles", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  departmentId: text("department_id").notNull().references(() => departments.id),
+  reportsToRoleId: text("reports_to_role_id"), // Self-referencing FK
+  ...timestamps,
+});
+
+// ─── Projects ─────────────────────────────────────────────
+export const projects = sqliteTable("projects", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  departmentId: text("department_id").notNull().references(() => departments.id),
+  status: text("status").notNull().default("active"),
+  ...timestamps,
+});
+
+// ─── Tasks ────────────────────────────────────────────────
+export const tasks = sqliteTable("tasks", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => projects.id),
+  assignedAgentId: text("assigned_agent_id").references(() => agents.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("open"), // open | queued | in_progress | awaiting_approval | done | failed
+  costInTokens: integer("cost_in_tokens").notNull().default(0),
+  ...timestamps,
+});
+
+// ─── Task Events (Agent Logs) ─────────────────────────────
+export const taskEvents = sqliteTable("task_events", {
+  id: text("id").primaryKey(),
+  taskId: text("task_id").notNull().references(() => tasks.id),
+  actorId: text("actor_id").notNull(),
+  actorType: text("actor_type").notNull(), // human | agent | system
+  eventType: text("event_type").notNull(), // thought | tool_call | tool_result | approval_request | error | status_change
+  details: text("details").default("{}"), // JSON
+  ...timestamps,
+});
+
+// ─── Approval Requests ────────────────────────────────────
+export const approvalRequests = sqliteTable("approval_requests", {
+  id: text("id").primaryKey(),
+  taskId: text("task_id").notNull().references(() => tasks.id),
+  requiredRoleId: text("required_role_id"), // se precisar de alguém com certo cargo para aprovar
+  status: text("status").notNull().default("pending"), // pending | approved | rejected
+  reason: text("reason"),
+  resolutionDetails: text("resolution_details"), // JSON reason for rejection/approval
   ...timestamps,
 });

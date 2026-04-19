@@ -23,7 +23,7 @@ export function createAuth(
     database: drizzleAdapter(db, {
       provider: "sqlite",
     }),
-    baseURL: "/api/auth",
+    baseURL: env.APP_ENV === "development" ? "http://localhost:8787/api/auth" : "https://gabios.ness.workers.dev/api/auth",
     secret: env.AUTH_SECRET,
 
     // Email + Password authentication

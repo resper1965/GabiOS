@@ -10,14 +10,13 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-
 	// Environment variables
 	"vars": {
 		"APP_NAME": "GabiOS",
 		"APP_VERSION": "0.1.0",
-		"APP_ENV": "development"
+		"APP_ENV": "development",
+		"BETTER_AUTH_URL": "https://gabios.ness.workers.dev"
 	},
-
 	// D1 Databases
 	"d1_databases": [
 		{
@@ -27,7 +26,6 @@
 			"migrations_dir": "db/migrations"
 		}
 	],
-
 	// R2 Object Storage (documents, files)
 	"r2_buckets": [
 		{
@@ -35,7 +33,6 @@
 			"bucket_name": "gabios-storage"
 		}
 	],
-
 	// Vectorize (RAG embeddings)
 	"vectorize": [
 		{
@@ -43,12 +40,47 @@
 			"index_name": "gabios-embeddings"
 		}
 	],
-
 	// Workers AI
 	"ai": {
 		"binding": "AI"
 	},
-
+	// Queues
+	"queues": {
+		"producers": [
+			{
+				"binding": "AGENT_QUEUE",
+				"queue": "agent-tasks-queue"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "agent-tasks-queue",
+				"max_batch_size": 10,
+				"max_batch_timeout": 5,
+				"max_retries": 3
+			}
+		]
+	},
+	// Cron Triggers
+	"triggers": {
+		"crons": ["* * * * *"] // Roda a cada minuto
+	},
+	// Durable Objects
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "MEETING_ROOM",
+				"class_name": "MeetingRoom"
+			}
+		]
+	},
+	// Migrations for Durable Objects
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_classes": ["MeetingRoom"]
+		}
+	],
 	// Environments
 	"env": {
 		"staging": {

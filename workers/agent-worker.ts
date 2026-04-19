@@ -1,0 +1,130 @@
+import { drizzle } from "drizzle-orm/d1";
+import { tasks, taskEvents } from "../db/schema";
+import { eq, asc } from "drizzle-orm";
+import { generateText, type CoreMessage } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { getAgentTools } from "../server/agent/tools";
+import type { Env } from "../worker-configuration";
+
+export const agentWorker = async (batch: MessageBatch<any>, env: Env, ctx: ExecutionContext) => {
+  if (!env.DB) return;
+  const db = drizzle(env.DB);
+  const openai = createOpenAI({ apiKey: env.OPENAI_API_KEY || "dummy" }); 
+  
+  for (const message of batch.messages) {
+    const payload = message.body;
+    console.log("Agent Worker processing message:", payload);
+    
+    try {
+      const taskId = payload.taskId;
+      if (!taskId) {
+        message.ack();
+        continue;
+      }
+      
+      const task = await db.select().from(tasks).where(eq(tasks.id, taskId)).get();
+      if (!task || task.status === "done" || task.status === "failed") {
+        message.ack();
+        continue;
+      }
+
+      // Update to in_progress if starting
+      if (task.status === "open" || task.status === "queued") {
+        await db.update(tasks).set({ status: "in_progress" }).where(eq(tasks.id, taskId));
+        await db.insert(taskEvents).values({
+          id: crypto.randomUUID(),
+          taskId: task.id,
+          actorId: "system",
+          actorType: "system",
+          eventType: "status_change",
+          details: JSON.stringify({ previous: task.status, current: "in_progress" })
+        });
+      }
+      
+      // 1. Context Rehydration
+      const rawEvents = await db.select().from(taskEvents)
+        .where(eq(taskEvents.taskId, taskId))
+        .orderBy(asc(taskEvents.createdAt));
+        
+      const messages: CoreMessage[] = [
+        { role: "system", content: `You are an autonomous agent in GabiOS. Your current assigned task is: "${task.title}".\n\nTask ID: ${task.id}\n\nThink step by step and use tools to achieve the objective. If you face ambiguity or need to take a destructive/costly action, ALWAYS use the request_approval tool. When you are 100% sure you have finished, use mark_task_done.` }
+      ];
+
+      for (const ev of rawEvents) {
+        if (ev.eventType === "thought") {
+           messages.push({ role: "assistant", content: ev.details });
+        } else if (ev.eventType === "tool_result") {
+           messages.push({ role: "user", content: `[System Tool Result]: ${ev.details}` });
+        } else if (ev.eventType === "status_change") {
+           messages.push({ role: "system", content: `[Status changed]: ${ev.details}` });
+        }
+      }
+
+      messages.push({ role: "user", content: "Continue working on the task. What is your next step? Use tools if necessary." });
+
+      // 2. The Agent Loop
+      console.log(`Calling LLM for task: ${task.title}`);
+      
+      if (!env.OPENAI_API_KEY) {
+        console.log("No OPENAI_API_KEY. Simulating LLM call for task completion.");
+        await db.insert(taskEvents).values({
+          id: crypto.randomUUID(),
+          taskId: task.id,
+          actorId: task.assignedAgentId || "unassigned",
+          actorType: "agent",
+          eventType: "thought",
+          details: "I don't have an OpenAI key set. I will simulate the completion of this task by calling mark_task_done internally."
+        });
+        
+        await db.update(tasks).set({ status: "done" }).where(eq(tasks.id, taskId));
+        message.ack();
+        continue;
+      }
+
+      const { text, toolCalls, toolResults } = await generateText({
+        model: openai("gpt-4o-mini"),
+        messages,
+        tools: getAgentTools(db, taskId),
+        maxSteps: 3, 
+        onStepFinish: async ({ text, toolCalls, toolResults }) => {
+           if (text) {
+             await db.insert(taskEvents).values({
+               id: crypto.randomUUID(),
+               taskId: task.id,
+               actorId: "agent",
+               actorType: "agent",
+               eventType: "thought",
+               details: text
+             });
+           }
+           for (const t of toolCalls) {
+              await db.insert(taskEvents).values({
+               id: crypto.randomUUID(),
+               taskId: task.id,
+               actorId: "agent",
+               actorType: "agent",
+               eventType: "tool_call",
+               details: JSON.stringify({ name: t.toolName, args: t.args })
+             });
+           }
+           for (const res of toolResults) {
+             await db.insert(taskEvents).values({
+               id: crypto.randomUUID(),
+               taskId: task.id,
+               actorId: "system",
+               actorType: "system",
+               eventType: "tool_result",
+               details: JSON.stringify({ name: res.toolName, result: res.result })
+             });
+           }
+        }
+      });
+      
+      message.ack();
+    } catch (err) {
+      console.error("Agent Worker error:", err);
+      // Fallback em caso de erro fatal de parsing
+      message.ack(); 
+    }
+  }
+};
