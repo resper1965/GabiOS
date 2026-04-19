@@ -15,6 +15,13 @@
       "when": 1776609463745,
       "tag": "0001_rapid_swarm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776634682496,
+      "tag": "0002_optimal_gambit",
+      "breakpoints": true
     }
   ]
 }

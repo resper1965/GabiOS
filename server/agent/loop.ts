@@ -3,7 +3,7 @@ import { generateText } from "ai";
 import { z } from "zod";
 import { buildContext } from "./context-builder";
 import { postProcess } from "./post-processor";
-import { getAgentTools } from "./tools";
+import { getChatTools } from "./chat-tools";
 import type { AgentConfig, AgentMessage, AgentResponse } from "./types";
 
 /**
@@ -40,7 +40,9 @@ export async function runAgentLoop(
   const workersai = createWorkersAI({ binding: env.AI });
 
   // 4. Run the agent loop via AI SDK
-  const tools = getAgentTools(config, env);
+  const { drizzle } = await import("drizzle-orm/d1");
+  const db = drizzle(config.tenantDb);
+  const tools = getChatTools(db, config);
 
   const result = await generateText({
     model: workersai(config.modelId),

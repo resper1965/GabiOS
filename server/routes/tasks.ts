@@ -5,6 +5,7 @@ import { tasks, taskEvents } from "../../db/schema";
 import { eq, desc } from "drizzle-orm";
 import type { HonoEnv } from "../index";
 import { requireRole } from "../middleware/rbac";
+import { logAudit } from "../lib/audit";
 
 const tasksRoutes = new Hono<HonoEnv>();
 
@@ -50,7 +51,7 @@ tasksRoutes.patch("/:id/status", requireRole("owner", "admin"), async (c) => {
 
   await db.update(tasks).set({ status: parsed.data.status }).where(eq(tasks.id, id));
 
-  // Audit log
+  // Audit log via task events
   await db.insert(taskEvents).values({
     id: crypto.randomUUID(),
     taskId: id,
@@ -58,6 +59,17 @@ tasksRoutes.patch("/:id/status", requireRole("owner", "admin"), async (c) => {
     actorType: "human",
     eventType: "status_change",
     details: JSON.stringify({ previous: task.status, current: parsed.data.status }),
+  });
+
+  // I5: Audit log
+  await logAudit(c.var.tenantDb, {
+    orgId: c.var.tenantId,
+    actorId: c.var.user?.id || "unknown",
+    action: "task.status_change",
+    targetType: "task",
+    targetId: id,
+    details: { previous: task.status, current: parsed.data.status },
+    ipAddress: c.req.header("cf-connecting-ip"),
   });
 
   return c.json({ success: true, newStatus: parsed.data.status });

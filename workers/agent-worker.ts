@@ -114,6 +114,12 @@ export const agentWorker = async (batch: MessageBatch<any>, env: Env, ctx: Execu
         }
       });
       
+      // A3: Record actual token cost for budget tracking
+      const totalTokens = (text?.length || 0); // Approximate — Workers AI doesn't always return usage
+      await db.update(tasks).set({ 
+        costInTokens: totalTokens 
+      }).where(eq(tasks.id, task.id));
+      
       message.ack();
     } catch (err) {
       console.error("Agent Worker error:", err);

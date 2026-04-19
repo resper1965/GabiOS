@@ -18,6 +18,7 @@ const softDelete = {
 // ─── Agents ───────────────────────────────────────────────
 export const agents = sqliteTable("agents", {
   id: text("id").primaryKey(),
+  orgId: text("org_id").notNull().default("default"),
   name: text("name").notNull(),
   roleId: text("role_id"), // fk to agentRoles
   soulMd: text("soul_md").notNull().default(""),
@@ -108,6 +109,7 @@ export const memoryFacts = sqliteTable("memory_facts", {
 // ─── Documents (R2 references) ────────────────────────────
 export const documents = sqliteTable("documents", {
   id: text("id").primaryKey(),
+  orgId: text("org_id").notNull().default("default"),
   agentId: text("agent_id")
     .references(() => agents.id),
   name: text("name").notNull(),
@@ -123,6 +125,7 @@ export const documents = sqliteTable("documents", {
 // ─── Workflows ────────────────────────────────────────────
 export const workflows = sqliteTable("workflows", {
   id: text("id").primaryKey(),
+  orgId: text("org_id").notNull().default("default"),
   agentId: text("agent_id")
     .references(() => agents.id),
   name: text("name").notNull(),
@@ -136,6 +139,7 @@ export const workflows = sqliteTable("workflows", {
 // ─── Audit Logs ───────────────────────────────────────────
 export const auditLogs = sqliteTable("audit_logs", {
   id: text("id").primaryKey(),
+  orgId: text("org_id").notNull().default("default"),
   actorId: text("actor_id").notNull(), // user who performed the action
   action: text("action").notNull(), // agent.create, channel.update, etc.
   targetType: text("target_type").notNull(), // agent, channel, conversation

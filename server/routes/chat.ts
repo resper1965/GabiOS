@@ -26,11 +26,11 @@ chatRoutes.post("/", async (c) => {
   const db = drizzle(c.var.tenantDb);
   const { agentId, message, conversationId } = parsed.data;
 
-  // Fetch agent config
+  // Fetch agent config (org-scoped)
   const agent = await db
     .select()
     .from(agents)
-    .where(eq(agents.id, agentId))
+    .where(and(eq(agents.id, agentId), eq(agents.orgId, c.var.tenantId)))
     .get();
 
   if (!agent) {
