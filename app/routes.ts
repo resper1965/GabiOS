@@ -16,4 +16,7 @@ export default [
     route("dashboard", "routes/dashboard/index.tsx"),
     route("dashboard/agents", "routes/dashboard/agents.tsx"),
   ]),
+
+  // WebChat demo
+  route("webchat", "routes/webchat.tsx"),
 ] satisfies RouteConfig;
