@@ -1,0 +1,65 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "gabios",
+	"compatibility_date": "2025-04-04",
+	"main": "./workers/app.ts",
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+
+	// Environment variables
+	"vars": {
+		"APP_NAME": "GabiOS",
+		"APP_VERSION": "0.1.0",
+		"APP_ENV": "development"
+	},
+
+	// D1 Databases
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "gabios-db",
+			"database_id": "local",
+			"migrations_dir": "db/migrations"
+		}
+	],
+
+	// R2 Object Storage (documents, files)
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "gabios-storage"
+		}
+	],
+
+	// Vectorize (RAG embeddings)
+	"vectorize": [
+		{
+			"binding": "VECTORIZE",
+			"index_name": "gabios-embeddings"
+		}
+	],
+
+	// Workers AI
+	"ai": {
+		"binding": "AI"
+	},
+
+	// Environments
+	"env": {
+		"staging": {
+			"vars": {
+				"APP_ENV": "staging"
+			}
+		},
+		"production": {
+			"vars": {
+				"APP_ENV": "production"
+			}
+		}
+	}
+}
