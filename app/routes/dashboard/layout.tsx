@@ -1,7 +1,10 @@
 import { Outlet, Link, useLocation } from "react-router";
 import {
+  Bot,
   Building2,
   KanbanSquare,
+  MessageSquare,
+  ShieldCheck,
   LogOut,
   ChevronRight,
   Landmark
@@ -9,8 +12,11 @@ import {
 import { signOut } from "~/lib/auth.client";
 
 const navItems = [
+  { to: "/dashboard/agents", icon: Bot, label: "Agentes" },
+  { to: "/dashboard/chat", icon: MessageSquare, label: "Chat" },
   { to: "/dashboard/tasks", icon: KanbanSquare, label: "Company Board" },
   { to: "/dashboard/organization", icon: Building2, label: "Organization" },
+  { to: "/dashboard/security", icon: ShieldCheck, label: "Segurança" },
 ];
 
 export default function DashboardLayout() {

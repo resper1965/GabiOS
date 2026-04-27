@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
 
 export function loader() {
-  return redirect("/dashboard/tasks");
+  return redirect("/dashboard/agents");
 }
 
 export default function DashboardIndex() {

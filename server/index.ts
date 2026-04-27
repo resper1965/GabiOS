@@ -6,6 +6,8 @@ import { agentRoutes } from "./routes/agents";
 import { chatRoutes } from "./routes/chat";
 import { tasksRoutes } from "./routes/tasks";
 import { organizationRoutes } from "./routes/organization";
+import { standardsRoutes } from "./routes/standards";
+import { gapAnalysisRoutes } from "./routes/gap-analysis";
 import { authMiddleware } from "./middleware/auth";
 import { tenantMiddleware } from "./middleware/tenant";
 
@@ -56,5 +58,7 @@ api.route("/agents", agentRoutes);
 api.route("/chat", chatRoutes);
 api.route("/tasks", tasksRoutes);
 api.route("/organization", organizationRoutes);
+api.route("/standards", standardsRoutes);
+api.route("/gap-analysis", gapAnalysisRoutes);
 
 export { api };

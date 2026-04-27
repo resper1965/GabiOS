@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, organization } from "better-auth/plugins";
+import { admin, organization, twoFactor } from "better-auth/plugins";
 import { drizzle } from "drizzle-orm/d1";
 
 /**
@@ -31,12 +31,22 @@ export function createAuth(
       enabled: true,
     },
 
+    // App name shown as issuer in authenticator apps (Google Authenticator, Authy)
+    appName: "GabiOS",
+
     // Plugins
     plugins: [
       // Admin plugin — superadmin capabilities
       admin(),
       // Organization plugin — multi-tenant support
       organization(),
+      // Two-Factor Authentication (TOTP)
+      twoFactor({
+        totpOptions: {
+          digits: 6,
+          period: 30,
+        },
+      }),
     ],
 
     // Session configuration
